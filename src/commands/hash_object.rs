@@ -23,7 +23,7 @@ fn compress(content: String) -> Vec<u8> {
     compressor.finish().unwrap()
 }
 
-pub fn hash_object(path: &str) {
+pub fn hash_object(path: &str) -> String {
     let mut file = fs::File::open(path).unwrap();
 
     let mut content = String::new();
@@ -50,6 +50,5 @@ pub fn hash_object(path: &str) {
     let compressed = compress(content);
     blob_obj_file.write_all(&compressed).unwrap();
 
-    print!("{}", hash);
-    // hasher.wrial
+    hash
 }
