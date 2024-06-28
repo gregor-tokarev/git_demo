@@ -1,4 +1,4 @@
-use clap::{command, parser, Arg, ArgMatches, Command};
+use clap::{command, Arg, ArgMatches, Command};
 
 pub struct Args {}
 
@@ -7,7 +7,7 @@ impl Args {
         command!()
             .subcommand(Command::new("cat-file").arg(Arg::new("path").required(true).short('p')))
             .subcommand(Command::new("init"))
-            .subcommand(Command::new("hash-file").arg(Arg::new("path").required(true).short('w')))
+            .subcommand(Command::new("hash-object").arg(Arg::new("path").required(true).short('w')))
             .get_matches()
     }
 }

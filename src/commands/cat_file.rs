@@ -18,10 +18,9 @@ pub fn get_file_buffer(file: fs::File) -> Vec<u8> {
     let bytes_read = decoder.read(&mut buffer).unwrap();
 
     buffer[..bytes_read].to_vec()
-
 }
 
-pub fn cat_file(hash: String) {
+pub fn cat_file(hash: String) -> String {
     let path = get_file_path(hash);
 
     let file = fs::File::open(path).unwrap();
@@ -29,9 +28,9 @@ pub fn cat_file(hash: String) {
     let buffer = get_file_buffer(file);
 
     let content = String::from_utf8_lossy(&buffer);
-    let splitted = content.split("\0").collect::<Vec<&str>>();
+    let splitted = content.split('\0').collect::<Vec<&str>>();
 
     let content = *splitted.get(1).unwrap();
 
-    print!("{}", content);
+    content.to_owned()
 }
