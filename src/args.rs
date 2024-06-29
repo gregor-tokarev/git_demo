@@ -1,11 +1,11 @@
 use std::path::PathBuf;
 
-use clap::{command, Arg, ArgMatches, Parser, Subcommand};
+use clap::{command, Parser, Subcommand};
 
 #[derive(Parser)]
 pub struct Args {
     #[command(subcommand)]
-    pub command: Command
+    pub command: Command,
 }
 
 #[derive(Subcommand)]
@@ -13,11 +13,17 @@ pub enum Command {
     Init,
     CatFile {
         #[clap(short = 'p')]
-        path: String
+        object: String,
     },
     HashObject {
         #[clap(short = 'w')]
-        file: PathBuf
+        path: PathBuf,
+    },
+    LsTree {
+        #[clap(long = "name-only")]
+        name_only: bool,
+
+        object: String,
     },
 }
 

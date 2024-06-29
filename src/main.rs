@@ -1,12 +1,22 @@
+use std::io::prelude::*;
+use std::{fs, vec};
+
+use anyhow::Context;
 use args::{Args, Command};
 
 use clap::Parser;
 use commands::cat_file::cat_file;
 use commands::hash_object::hash_object;
 use commands::init::init_command;
+use compression::decode;
+use flate2::read::ZlibDecoder;
+use objects::tree::{FileTree, ObjectParseError};
+use objects::GitObject;
 
 mod args;
 mod commands;
+mod compression;
+mod objects;
 
 fn main() {
     // You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -16,33 +26,47 @@ fn main() {
         Command::Init => {
             init_command();
             println!("Initialized git directory");
-        },
-        Command::CatFile { path } => {
-            let content = cat_file(path.to_owned());
+        }
+        Command::CatFile { object } => {
+            let content = cat_file(object.to_owned());
 
             print!("{}", content);
-        },
-        Command::HashObject { file } => {
-            let hash = hash_object(file.to_str().unwrap());
+        }
+        Command::HashObject { path } => {
+            let hash = hash_object(path.to_str().unwrap());
             print!("{}", hash)
         }
+        Command::LsTree { object, name_only } => {
+            let path = format!(".git/objects/{}/{}", &object[..2], &object[2..]);
+            let mut file = fs::File::open(path).unwrap();
+
+            let mut buffer = vec![];
+            file.read_to_end(&mut buffer).unwrap();
+
+            let content = decode(&buffer[..]);
+
+            match FileTree::from_bytes(&content) {
+                Ok(tree) => {
+                    for row in tree.rows {
+                        if name_only {
+                            println!("{}", row.object_name);
+                        } else {
+                            println!("{}", row);
+                        }
+                    }
+                }
+                Err(error) => {
+                    match error
+                        .downcast::<ObjectParseError>()
+                        .context("Not convertable into ObjectParseError")
+                        .unwrap()
+                    {
+                        ObjectParseError::NotTree => {
+                            println!("Provided object is not an tree");
+                        }
+                    }
+                }
+            };
+        }
     }
-    // Uncomment this block to pass the first stage
-    // if args.subcommand_matches("init").is_some() {
-    //     init_command();
-    //     println!("Initialized git directory");
-    // };
-    //
-    // if let Some(cmd) = args.subcommand_matches("cat-file") {
-    //     let hash = cmd.get_one::<String>("path").unwrap();
-    //     let content = cat_file(hash.to_owned());
-    //
-    //     print!("{content}");
-    // };
-    //
-    // if let Some(cmd) = args.subcommand_matches("hash-object") {
-    //     let path = cmd.get_one::<String>("path").unwrap();
-    //
-    //     hash_object(path);
-    // };
 }

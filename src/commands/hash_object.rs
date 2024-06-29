@@ -4,8 +4,9 @@ use std::{
     path::Path,
 };
 
-use flate2::{write::ZlibEncoder, Compression};
 use sha1::{Digest, Sha1};
+
+use crate::compression::encode;
 
 pub fn get_hash(content: String) -> String {
     let mut hasher = Sha1::new();
@@ -14,13 +15,6 @@ pub fn get_hash(content: String) -> String {
     let hash = hasher.finalize();
 
     hex::encode(hash)
-}
-
-fn compress(content: String) -> Vec<u8> {
-    let mut compressor = ZlibEncoder::new(Vec::new(), Compression::default());
-    compressor.write_all(content.as_bytes()).unwrap();
-
-    compressor.finish().unwrap()
 }
 
 pub fn hash_object(path: &str) -> String {
@@ -47,7 +41,7 @@ pub fn hash_object(path: &str) -> String {
         .open(format!("{}/{}", s, file_name))
         .unwrap();
 
-    let compressed = compress(content);
+    let compressed = encode(content);
     blob_obj_file.write_all(&compressed).unwrap();
 
     hash
