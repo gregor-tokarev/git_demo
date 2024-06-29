@@ -1,4 +1,4 @@
-use std::{fmt::Display, str::FromStr};
+use std::{fmt::Display, io::BufWriter, str::FromStr};
 
 use anyhow::{anyhow, Result};
 use sha1::{Digest, Sha1};
@@ -13,7 +13,7 @@ impl ToString for TreeRowMode {
     fn to_string(&self) -> String {
         match self {
             Self::File => String::from("100644"),
-            Self::Tree => String::from("040000"),
+            Self::Tree => String::from("40000"),
         }
     }
 }
@@ -60,5 +60,13 @@ impl TreeRow {
             object_name: inner_object_name,
             mode: TreeRowMode::from_str(&String::from_utf8(mode.to_vec())?)?,
         })
+    }
+
+    pub fn to_bytes(&self) -> Vec<u8> {
+        let mut bytes = vec![];
+        let mut writer = BufWriter::new(bytes);
+
+        // bytes.clone()
+        vec![]
     }
 }

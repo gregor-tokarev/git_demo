@@ -9,7 +9,6 @@ use commands::cat_file::cat_file;
 use commands::hash_object::hash_object;
 use commands::init::init_command;
 use compression::decode;
-use flate2::read::ZlibDecoder;
 use objects::tree::{FileTree, ObjectParseError};
 use objects::GitObject;
 
@@ -67,6 +66,12 @@ fn main() {
                     }
                 }
             };
+        },
+        Command::WriteTree => {
+            let dir = fs::read_dir("./").unwrap();
+            for f in dir {
+                println!("{:?}", f.unwrap());
+            }
         }
     }
 }
